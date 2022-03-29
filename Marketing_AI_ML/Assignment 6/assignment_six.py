@@ -108,7 +108,9 @@ def Spending_Score_chart():
     plt.savefig(current_dir +'/media/Spending_Score_chart.png')
     plt.clf()
 
-age_chart()
-Annual_Income_chart()
-Spending_Score_chart()
-elbow_chart()
+    
+if __name__ == "__main__":
+    age_chart()
+    Annual_Income_chart()
+    Spending_Score_chart()
+    elbow_chart()
