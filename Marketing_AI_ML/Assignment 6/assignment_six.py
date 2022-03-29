@@ -9,15 +9,21 @@ import seaborn as sns; sns.set(style="ticks", color_codes=True)
 
 current_dir = os.getcwd()
 
+# defining the file and dropping genre since pandas doesn't like strings
 file_name = "Mall_Customers.csv"
 df = pd.read_csv(file_name)
 data = df.drop(columns=['Genre'])
 
+#using a scaler to standardize the data
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(data)
+
+#After looking at the elbow_chart function below, determined n_clusters to be 4. Now fitting the scaled_features to
+# a 4 seed cluster
 kmeans = KMeans(n_clusters=4, init='k-means++', max_iter=300, n_init=15, random_state=0)
 kmeans.fit(scaled_features)
 
+#copying the fitted data to a new df, and adding the clusters column 
 data_with_clusters = data.copy()
 data_with_clusters['Clusters'] = kmeans.labels_
 
