@@ -6,13 +6,19 @@ from yellowbrick.cluster import KElbowVisualizer
 import matplotlib.pyplot as plt
 import os 
 import seaborn as sns; sns.set(style="ticks", color_codes=True)
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
 current_dir = os.getcwd()
 
 # defining the file and dropping genre since pandas doesn't like strings
 file_name = "Mall_Customers.csv"
-df = pd.read_csv(file_name)
-data = df.drop(columns=['Genre'])
+df = pd.read_csv(file_name).rename(columns={'Genre': 'Gender'})
+
+gender_cat = {'Male': 1, 'Female': 2}
+# data = df.drop(columns=['Genre'])
+df['Gender'] = df['Gender'].map(gender_cat)
+data = df
 
 #using a scaler to standardize the data
 scaler = StandardScaler()
@@ -41,6 +47,7 @@ def elbow_chart():
 
 
 def age_chart():
+    #building the cluster labels
     c0_min = min(c0['Age'])
     c0_max = max(c0['Age'])
     c0_range = ('{} - {}'.format(c0_min, c0_max))
@@ -57,6 +64,7 @@ def age_chart():
     c3_max = max(c3['Age'])
     c3_range = ('{} - {}'.format(c3_min, c3_max))
 
+    # the labels would normally have the cluster IDs. i'm replacing them with the cluster ranges above
     data_with_clusters['Cluster Values'] = data_with_clusters['Clusters'].replace([0,1,2,3], [c0_range, c1_range, c2_range, c3_range])
     sns.boxplot(x=data_with_clusters['Cluster Values'], y=data_with_clusters['Age'], palette="Set3", hue=data_with_clusters['Clusters'], dodge=False)
     plt.legend(loc=2, bbox_to_anchor= (1,1), title='Clusters Group ID')
@@ -66,6 +74,7 @@ def age_chart():
 
 
 def Annual_Income_chart():
+    #building the cluster labels
     c0_min = min(c0['Annual Income (k$)'])
     c0_max = max(c0['Annual Income (k$)'])
     c0_range = ('{} - {}'.format(c0_min, c0_max))
@@ -82,6 +91,7 @@ def Annual_Income_chart():
     c3_max = max(c3['Annual Income (k$)'])
     c3_range = ('{} - {}'.format(c3_min, c3_max))
 
+    # the labels would normally have the cluster IDs. i'm replacing them with the cluster ranges above
     data_with_clusters['Cluster Values'] = data_with_clusters['Clusters'].replace([0,1,2,3], [c0_range, c1_range, c2_range, c3_range])
     sns.boxplot(x=data_with_clusters['Cluster Values'], y=data_with_clusters['Annual Income (k$)'], palette="Set3", hue=data_with_clusters['Clusters'], dodge=False)
     plt.legend(loc=2, bbox_to_anchor= (1,1), title='Clusters Group ID')
@@ -91,6 +101,8 @@ def Annual_Income_chart():
 
 
 def Spending_Score_chart():
+
+    #building the cluster labels
     c0_min = min(c0['Spending Score (1-100)'])
     c0_max = max(c0['Spending Score (1-100)'])
     c0_range = ('{} - {}'.format(c0_min, c0_max))
@@ -107,6 +119,7 @@ def Spending_Score_chart():
     c3_max = max(c3['Spending Score (1-100)'])
     c3_range = ('{} - {}'.format(c3_min, c3_max))
 
+    # the labels would normally have the cluster IDs. i'm replacing them with the cluster ranges above
     data_with_clusters['Cluster Values'] = data_with_clusters['Clusters'].replace([0,1,2,3], [c0_range, c1_range, c2_range, c3_range])
     sns.boxplot(x=data_with_clusters['Cluster Values'], y=data_with_clusters['Spending Score (1-100)'], palette="Set3", hue=data_with_clusters['Clusters'], dodge=False)
     plt.legend(loc=2, bbox_to_anchor= (1,1), title='Clusters Group ID')
@@ -114,9 +127,60 @@ def Spending_Score_chart():
     plt.savefig(current_dir +'/media/Spending_Score_chart.png')
     plt.clf()
 
-    
+
+def overall_data():
+    #since for the project I selected Cluster 3 for analysis, i'm doing analysis for that cluster.
+
+    #ols can't handle non-alphanumeric characters
+    c3.rename(columns={'Spending Score (1-100)': "Spend", 'Annual Income (k$)':'Income'}, inplace=True)
+    lm = ols('Spend ~ Gender + Age + Income', data=c3).fit()
+    print('Male & Female stats')
+    print(lm.summary())
+
+# 1 is male and 2 is female
+def gender_data(gender_id):
+    #depending on the gender selected for analysis, the label is updated
+    gender_name = ''
+    for key, value in gender_cat.items():
+        if gender_id == value:
+            gender_name = key
+
+    #only selecting values that match the gender ID from the cluster selected
+    df = c3.loc[c3['Gender'] == gender_id]
+    #linear regression plots
+    sns.lmplot(x='Annual Income (k$)', y='Spending Score (1-100)', data = df)
+    sns.lmplot(x='Age', y='Spending Score (1-100)', data = df)
+    sns.lmplot(x='Age', y='Annual Income (k$)', data = df)
+
+    x = df['Age']
+    y = df['Annual Income (k$)']
+    z = df['Spending Score (1-100)']
+
+    #performing different correlation analysis 
+    income_spend_corr = y.corr(z)
+    age_spend_corr = x.corr(z)
+    age_income_corr = x.corr(y)
+    correlation = gender_name+' Correlation: \nincome_spending correlation: {} \nage_spending correlation: {}\nage_income correlation: {}\n'.format(income_spend_corr, age_spend_corr, age_income_corr)
+    print(correlation)  
+
+    #performing different means of each attribute
+    age_mean = df['Age'].mean()
+    income_mean = df['Annual Income (k$)'].mean()
+    spend_mean = df['Spending Score (1-100)'].mean()
+    means = gender_name+' means: \nage mean: {} \nspend mean: {} \nincome mean: {}'.format(age_mean, spend_mean, income_mean)
+    print(means)
+
+    #ANOVA 
+    df.rename(columns={'Spending Score (1-100)': "Spend", 'Annual Income (k$)':'Income'}, inplace=True)
+    lm = ols('Spend ~ Age + Income', data=df).fit()
+    table = sm.stats.anova_lm(lm)
+    print(lm.summary())
+
 if __name__ == "__main__":
-    age_chart()
-    Annual_Income_chart()
-    Spending_Score_chart()
-    elbow_chart()
+    # age_chart()
+    # Annual_Income_chart()
+    # Spending_Score_chart()
+    # elbow_chart()
+    # gender_data(1)
+    # gender_data(2)
+    overall_data()
