@@ -218,5 +218,4 @@ if __name__ == "__main__":
     
     # overall_data()
     # male = gender_data(1)
-    # female = gender_data(2)
-    
+    female = gender_data(2)
