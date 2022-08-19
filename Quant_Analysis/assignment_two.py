@@ -26,17 +26,14 @@ df = df.explode('genres')
 df = df[df.gross.notnull()]
 df = df[df.budget.notnull()]
 
-# replacing NA values with 0 for aspect_ratio
+# dropping the aspect_ratio column
 df.drop(columns='aspect_ratio')
 
-# only two blanks for critics. Decided to drop them since it's so few
+# only two blanks for critics. Decided to drop the blanks since it's so few
 df = df[df.num_critic_for_reviews.notnull()]
 
-#only one blank for duration. dropping
+#only one blank for duration. dropping the blank rows
 df = df[df.duration.notnull()]
-
-# update facenumber_in_poster
-df['facenumber_in_poster'] = df['facenumber_in_poster'].replace(0, '.')
 
 
 # # update float and int values that have 0 to '.'
@@ -51,9 +48,8 @@ df['content_rating'] = df['content_rating'].replace({'M': 'PG', 'GP': 'PG', 'X':
 
 
 # making unclear ratings into 1 new rating
-unclear_rating = ['Not Rated', 'Unrated', 'Passed']
+df['content_rating'] = df['content_rating'].replace({'Not Rated': 'R', 'Unrated': 'R', 'Passed': 'R'})
 
-df['unclear_rating'] = df['content_rating'].apply(lambda x: 'Match' if x in unclear_rating else 'mismatch')
 
 
 
