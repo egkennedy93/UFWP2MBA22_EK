@@ -19,8 +19,14 @@ df['movie_title'] = df['movie_title'].str.replace(r'åÊ', '')
 # splitting the genres based on | and creating a list
 df['genres'] = df['genres'].str.split('|')
 
-# exploding the list so for every list item, a new row is created
-df = df.explode('genres')
+for row_index, row in enumerate(df.itertuples()):
+    for index, i in enumerate(row.genres):
+        print(i)
+        column_name = 'genres_{}'.format(index+1)
+        df.at[row_index, column_name] = i
+
+# # exploding the list so for every list item, a new row is created
+# df = df.explode('genres')
 
 # deleting rows where gross or budget is blank
 df = df[df.gross.notnull()]
