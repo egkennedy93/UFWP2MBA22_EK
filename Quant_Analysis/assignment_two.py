@@ -23,7 +23,7 @@ for row_index, row in enumerate(df.itertuples()):
     for index, i in enumerate(row.genres):
         column_name = 'genres_{}'.format(index+1)
         df.at[row_index, column_name] = i
-df.drop(columns='genres')
+df = df.drop(columns='genres')
 
 
 # deleting rows where gross or budget is blank
@@ -31,7 +31,7 @@ df = df[df.gross.notnull()]
 df = df[df.budget.notnull()]
 
 # dropping the aspect_ratio column
-df.drop(columns='aspect_ratio')
+df = df.drop(columns='aspect_ratio')
 
 # only two blanks for critics. Decided to drop the blanks since it's so few
 df = df[df.num_critic_for_reviews.notnull()]
