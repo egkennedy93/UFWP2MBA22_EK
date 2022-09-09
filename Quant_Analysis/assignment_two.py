@@ -1,4 +1,3 @@
-#%%
 import pandas as pd
 import numpy as np
 import os
@@ -19,14 +18,13 @@ df['movie_title'] = df['movie_title'].str.replace(r'åÊ', '')
 # splitting the genres based on | and creating a list
 df['genres'] = df['genres'].str.split('|')
 
+# iterating through each row 
 for row_index, row in enumerate(df.itertuples()):
     for index, i in enumerate(row.genres):
-        print(i)
         column_name = 'genres_{}'.format(index+1)
         df.at[row_index, column_name] = i
+df.drop(columns='genres')
 
-# # exploding the list so for every list item, a new row is created
-# df = df.explode('genres')
 
 # deleting rows where gross or budget is blank
 df = df[df.gross.notnull()]
@@ -58,6 +56,5 @@ df['content_rating'] = df['content_rating'].replace({'Not Rated': 'R', 'Unrated'
 
 
 
-
 df.to_csv('output_data.csv')
-# %%
+
