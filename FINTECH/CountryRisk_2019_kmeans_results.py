@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # In[1]:
-
 
 # loading packages
 
@@ -30,7 +26,7 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 
 # load raw data
 DATA_FOLDER ='/home/egkennedy93/programming_projects/UFWP2MBA22_EK/FINTECH/'
-raw = pd.read_csv(os.path.join(DATA_FOLDER, 'country risk 2019 data.csv'))
+raw = pd.read_csv(os.path.join(DATA_FOLDER, 'Country Risk 2019 Data.csv'))
 
 # check the raw data
 print("Size of the dataset (row, col): ", raw.shape)
@@ -220,10 +216,6 @@ for n_clusters in range_n_clusters:
     silhouette_avg=silhouette_score(X,cluster_labels)
     print("For n_clusters=", n_clusters,
           "The average silhouette_score is :", silhouette_avg)
-
-
-# In[ ]:
-
 
 
 
